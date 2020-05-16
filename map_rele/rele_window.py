@@ -257,10 +257,10 @@ class Window(QWidget):
         self.btnReset_1.clicked.connect(self.reset_1)
 
         # 消息提示框
-        self.editHint = QLineEdit(self)
-        self.editHint = QLineEdit(self)
-        self.editHint.setPlaceholderText("消息提示")
-        self.editHint.setReadOnly(True)
+        # self.editHint = QLineEdit(self)
+        # self.editHint = QLineEdit(self)
+        # self.editHint.setPlaceholderText("消息提示")
+        # self.editHint.setReadOnly(True)
 
         self.setStyleSheet(
             "QPushButton{background-color: rgb(39, 118, 148)}"
@@ -526,13 +526,9 @@ class Window(QWidget):
             gradX = cv.Sobel(gray, ddepth=cv.CV_32F, dx=1, dy=0, ksize=-1)
             gradY = cv.Sobel(gray, ddepth=cv.CV_32F, dx=0, dy=1, ksize=-1)
 
-            # gradX = cv.Scharr(gray, cv.CV_64F, 1, 0)
-            # gradY = cv.Scharr(gray, cv.CV_64F, 0, 1)
             # 保留水平和竖直梯度大的
             gradient = cv.max(gradX, gradY)
-            # cv.namedWindow("Img0", cv.WINDOW_KEEPRATIO)
-            # cv.imshow("Img0", gradient)
-            # cv.imwrite("img0.jpg", gradient)
+
             gradient = cv.convertScaleAbs(gradient)
             #  寻找轮廓
             # 采用三角形法进行二值化
@@ -546,11 +542,8 @@ class Window(QWidget):
             kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
             # 闭运算，先腐蚀后膨胀，去除黑色小点
             closed = cv.morphologyEx(th, cv.MORPH_CLOSE, kernel, iterations=6)
-            # 轮廓生成
-            # cv.namedWindow("Img1", cv.WINDOW_KEEPRATIO)
-            # cv.imshow("Img1", closed)
-            # cv.imwrite("img1.jpg", closed)
 
+            # 轮廓生成
             # OpenCV3 的findContours有三个返回值，OpenCV 4的有四个返回值
             # 应该安装opencv-python 3.*版本。
             # cnts ：返回的轮廓的列表
@@ -900,12 +893,9 @@ class Window(QWidget):
             if all([ret[2], ret[3]]):
                 pre_contour_year = ret[2]
                 pre_contour = ret[3]
-                print(ret[2])
-                print(ret[3])
                 # 此时要存入数据库的后序轮廓就是右边图片中的轮廓。
                 next_contour_year = contour_year_1
                 next_contour = contour_name_1
-
                 print(pre_contour_year, pre_contour, next_contour_year, next_contour)
 
                 mysqlConn2 = MySqlConn()

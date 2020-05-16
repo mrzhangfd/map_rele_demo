@@ -1,0 +1,4 @@
+#
+map_rele/build/*
+map_rele/dist/*
+map_rele/rele_window.spec
