@@ -8,9 +8,9 @@ from numpy import array, fromfile, uint8, zeros, square, math, int32, ones
 import cv2 as cv
 from re import findall
 from PyQt5.QtWidgets import QPushButton, QLineEdit, QHBoxLayout, QVBoxLayout, QFileDialog, QWidget, QGraphicsView, \
-    QApplication
+    QApplication,QLabel
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QImage, QPixmap
+from PyQt5.QtGui import QIcon, QImage, QPixmap,QFont
 from baidu_ocr import BaiDuAPI
 from photo_viewer import PhotoViewer
 from mysql_conn import MySqlConn
@@ -256,6 +256,15 @@ class Window(QWidget):
         self.btnReset_1.setText("右图复位")
         self.btnReset_1.clicked.connect(self.reset_1)
 
+        #显示时间信息的label
+        self.labelTime=QLabel(self)
+        self.labelTime.setAlignment(Qt.AlignCenter)
+        self.labelTime.setFont(QFont("Microsoft YaHei",12,QFont.Bold))
+
+        self.labelTime_1=QLabel(self)
+        self.labelTime_1.setAlignment(Qt.AlignCenter)
+        self.labelTime_1.setFont(QFont("Microsoft YaHei",12,QFont.Bold))
+
         # 消息提示框
         # self.editHint = QLineEdit(self)
         # self.editHint = QLineEdit(self)
@@ -274,6 +283,7 @@ class Window(QWidget):
 
         # 左起，第一列布局，垂直布局。
         VBlayout = QVBoxLayout()
+        VBlayout.addWidget(self.labelTime)
         VBlayout.addWidget(self.viewer)
         HBlayout = QHBoxLayout()
         HBlayout.setAlignment(Qt.AlignLeft)
@@ -313,6 +323,7 @@ class Window(QWidget):
         ##左起，第二列布局，垂直布局。
         # 右边图片的布局
         VBlayout_1 = QVBoxLayout()
+        VBlayout_1.addWidget(self.labelTime_1)
         VBlayout_1.addWidget(self.viewer_1)
         HBlayout_1 = QHBoxLayout()
         HBlayout_1.setAlignment(Qt.AlignLeft)
@@ -391,6 +402,10 @@ class Window(QWidget):
             cv.imwrite('image/year.jpg', cut_bila)
             year_str = self.baidu_api.picture2text('image/year.jpg')
             year_int = findall(r'\d+', year_str)
+
+            #label上显示年份
+            self.labelTime.setText(year_str)
+
             if '前' in year_str:
                 map_year = -int(year_int[0])
             else:
@@ -434,6 +449,10 @@ class Window(QWidget):
             cv.imwrite('image/year.jpg', cut_bila)
             year_str = self.baidu_api.picture2text('image/year.jpg')
             year_int = findall(r'\d+', year_str)
+
+            # label上显示年份
+            self.labelTime_1.setText(year_str)
+
             if '前' in year_str:
                 map_year = -int(year_int[0])
             else:
@@ -883,6 +902,21 @@ class Window(QWidget):
         print(contour_year_1, type(contour_year_1))
         contour_name_1 = self.editcontourName_1.text()
         print(contour_name_1, type(contour_name_1))
+
+        # 判断左右两张图片时间先后
+        if contour_year < contour_year_1:
+            print("正常顺序")
+        elif contour_year > contour_year_1:
+            print("右侧图片时间靠前")
+            temp_year = contour_year_1
+            contour_year_1 = contour_year
+            contour_year = temp_year
+
+            temp_contour = contour_name_1
+            contour_name_1 = contour_name
+            contour_name = temp_contour
+        else:
+            print("两张图片属于同一年份，请重新选择图片")
 
         # 查询左侧轮廓在数据库中是否存在，返回ret
         mysqlConn1 = MySqlConn()
