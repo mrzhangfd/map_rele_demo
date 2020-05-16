@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2019/1/9 11:34
 # @Author  : Bo
-# @Email   : mat_wu@163.com
+# @Email   :
 # @File    : photo_window.py
 # @Software: PyCharm
 from pickle import dumps
@@ -260,7 +260,8 @@ class Window(QWidget):
         # 判断需要提取的hsv区间
         color = False
         for key, value in self.color_dict.items():
-            if color_hsv[0] >= value[0][0] and color_hsv[0] <= value[1][0] and color_hsv[1] >= value[0][1] and color_hsv[1] <= value[1][1] and color_hsv[2] >= value[0][2] and color_hsv[2] <= value[1][2]:
+            if color_hsv[0] >= value[0][0] and color_hsv[0] <= value[1][0] and color_hsv[1] >= value[0][1] and \
+                    color_hsv[1] <= value[1][1] and color_hsv[2] >= value[0][2] and color_hsv[2] <= value[1][2]:
                 color = True
                 lower_HSV = value[0]
                 upper_HSV = value[1]
@@ -316,12 +317,16 @@ class Window(QWidget):
             num = 0
             con_exit = False
             for cnt in cnts:
+                # pointPolygonTest检测点是否在轮廓内，
+                # 若返回值为+1，表示点在多边形内部，返回值为-1，表示在多边形外部，返回值为0，表示在多边形上
                 mesure = cv.pointPolygonTest(cnt, (self.x_clicked, self.y_clicked), measureDist=False)
+                # 鼠标在轮廓内部
                 if mesure == 1:
                     con_exit = True
                     break
                 num = num + 1
             if con_exit:
+                # 点在轮廓内
                 self.cnt = cnts[num]  # 确定轮廓
 
                 back = ones(self.image.shape, uint8) * 255
@@ -527,6 +532,7 @@ class Window(QWidget):
                 self.x_released = 0
                 self.y_released = 0
 
+    # 存储地点信息
     def save_site(self):
         site_year = int(self.editYearInfo.text())
         site_name = self.editSiteName.text()

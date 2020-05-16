@@ -83,4 +83,44 @@ class MySqlConn(object):
             self._cur.close()  # 关闭游标
             self._conn.close()  # 释放数据库资源
 
+    #根据map_year和contour_name 查询轮廓
+    def select_contour(self,map_year,contour_name):
+        print("this is select_contour")
+        select_string='select * from map_rele where map_year=%s and contour_name=%s'
 
+        args = (map_year, contour_name)
+        try:
+            self._cur.execute(select_string, args)
+            ret=self._cur.fetchone()
+            self._conn.commit()
+            return ret
+        # 无论如何，连接记得关闭游标和数据库链接
+        except Error as e:
+            self._conn.rollback()
+            print("插入失败")
+        finally:
+            self._cur.close()  # 关闭游标
+            self._conn.close()  # 释放数据库资源
+
+
+    def insert_rele(self,map_year,contour_name,pre_contour_year,pre_contour,
+                       next_contour_year,next_contour):
+        insertString = 'insert into map_rele(map_year, contour_name, pre_contour_year,pre_contour, next_contour_year,next_contour) ' \
+                       'values (%s,%s,%s,%s,%s,%s)' \
+                       'ON DUPLICATE KEY UPDATE pre_contour_year = values(pre_contour_year),' \
+                       'pre_contour = values(pre_contour),next_contour_year = values (next_contour_year),next_contour = values (next_contour)'
+
+        args = (map_year, contour_name, pre_contour_year, pre_contour, next_contour_year, next_contour)
+        try:
+            print(insertString)
+            self._cur.execute(insertString, args)
+
+            self._conn.commit()
+
+        except Error as e:
+            self._conn.rollback()
+            print("插入失败")
+        # 无论如何，连接记得关闭游标和数据库链接
+        finally:
+            self._cur.close()  # 关闭游标
+            self._conn.close()  # 释放数据库资源

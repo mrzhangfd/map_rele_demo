@@ -38,14 +38,13 @@ class Window(QWidget):
         self.choosePoints_1 = []
         self.ocr_flag_1 = False
 
-
         # 鼠标点击坐标和鼠标释放坐标
         self.x_clicked = 0
         self.y_clicked = 0
         self.x_released = 0
         self.y_released = 0
 
-        # 鼠标点击坐标和鼠标释放坐标——第二个图片的坐标
+        # 鼠标点击坐标和鼠标释放坐标——第二个图
         self.x_clicked_1 = 0
         self.y_clicked_1 = 0
         self.x_released_1 = 0
@@ -54,13 +53,13 @@ class Window(QWidget):
         self.fnmae = ''  # 加载的map
         self.baidu_api = BaiDuAPI()
 
-        #第二个图片的信息
+        # 第二个图片的信息
         self.fnmae_1 = ''  # 加载的map
         self.baidu_api_1 = BaiDuAPI()
 
         # 图片图元
         self.viewer = PhotoViewer(self)
-        self.viewer_1=PhotoViewer(self)
+        self.viewer_1 = PhotoViewer(self)
 
         # UI初始化
 
@@ -121,13 +120,12 @@ class Window(QWidget):
         self.viewer.mouse_released.connect(self.mouse_releasePoint)  # 自建鼠标松开信号连接了两个函数
         self.viewer.mouse_released.connect(self.contourDraged)
 
-
         # 轮廓拖动按钮，连接轮廓拖动函数——第二个图片
         self.btnDrag_1 = QPushButton(self)
         self.btnDrag_1.setText("轮廓拖拽")
-        self.btnDrag_1.clicked.connect(self.dragOutline)
-        self.viewer_1.mouse_released.connect(self.mouse_releasePoint)  # 自建鼠标松开信号连接了两个函数
-        self.viewer_1.mouse_released.connect(self.contourDraged)
+        self.btnDrag_1.clicked.connect(self.dragOutline_1)
+        self.viewer_1.mouse_released.connect(self.mouse_releasePoint_1)  # 自建鼠标松开信号连接了两个函数
+        self.viewer_1.mouse_released.connect(self.contourDraged_1)
 
         # 获取轮廓信息的按钮
         self.btnContourInfo = QPushButton(self)
@@ -173,6 +171,96 @@ class Window(QWidget):
         self.editContourCentre_1.setPlaceholderText("轮廓重心")
         self.editContourCentre_1.setReadOnly(True)
 
+        # 存储轮廓的信息
+        self.btnContourSave = QPushButton(self)
+        self.btnContourSave.setText("存储轮廓信息")
+        # self.btnContourSave.setText("Store Profile Information")
+        self.btnContourSave.clicked.connect(self.save_contour)
+
+        # 存储轮廓的信息——第二个图片
+        self.btnContourSave_1 = QPushButton(self)
+        self.btnContourSave_1.setText("存储轮廓信息")
+        # self.btnContourSave.setText("Store Profile Information")
+        self.btnContourSave_1.clicked.connect(self.save_contour_1)
+
+        # 地点识别
+        self.btnSite = QPushButton(self)
+        self.btnSite.setText("地点选择")
+        # self.btnSite.setText("Site Selection")
+        self.btnSite.clicked.connect(self.site_choose)
+        self.viewer.mouse_moved.connect(self.draw_line)
+
+        self.btnSiteInfo = QPushButton(self)
+        self.btnSiteInfo.setText("地点信息")
+        # self.btnSiteInfo.setText("Site Info")
+        self.btnSiteInfo.clicked.connect(self.site_info)
+
+        self.site_ContourName = QLineEdit(self)
+        self.site_ContourName.setPlaceholderText("所属轮廓")
+        # self.site_ContourName.setPlaceholderText("Contour Belong")
+
+        self.editSiteName = QLineEdit(self)
+        self.editSiteName.setPlaceholderText("地名")
+        self.editSiteSlope = QLineEdit(self)
+        self.editSiteSlope.setPlaceholderText('斜度')
+        self.editSiteLenth = QLineEdit(self)
+        self.editSiteLenth.setPlaceholderText('长度')
+        self.editSitePos = QLineEdit(self)
+        self.editSitePos.setPlaceholderText("位置")
+
+        self.btnSiteSave = QPushButton(self)
+        self.btnSiteSave.setText("存储地点信息")
+        self.btnSiteSave.clicked.connect(self.save_site)
+
+        # 地点识别——第二个图片
+        self.btnSite_1 = QPushButton(self)
+        self.btnSite_1.setText("地点选择")
+        # self.btnSite.setText("Site Selection")
+        self.btnSite_1.clicked.connect(self.site_choose_1)
+        self.viewer_1.mouse_moved.connect(self.draw_line_1)
+
+        self.btnSiteInfo_1 = QPushButton(self)
+        self.btnSiteInfo_1.setText("地点信息")
+        # self.btnSiteInfo.setText("Site Info")
+        self.btnSiteInfo_1.clicked.connect(self.site_info_1)
+
+        self.site_ContourName_1 = QLineEdit(self)
+        self.site_ContourName_1.setPlaceholderText("所属轮廓")
+        # self.site_ContourName.setPlaceholderText("Contour Belong")
+
+        self.editSiteName_1 = QLineEdit(self)
+        self.editSiteName_1.setPlaceholderText("地名")
+        self.editSiteSlope_1 = QLineEdit(self)
+        self.editSiteSlope_1.setPlaceholderText('斜度')
+        self.editSiteLenth_1 = QLineEdit(self)
+        self.editSiteLenth_1.setPlaceholderText('长度')
+        self.editSitePos_1 = QLineEdit(self)
+        self.editSitePos_1.setPlaceholderText("位置")
+
+        self.btnSiteSave_1 = QPushButton(self)
+        self.btnSiteSave_1.setText("存储地点信息")
+        self.btnSiteSave_1.clicked.connect(self.save_site_1)
+
+        # 第三列按钮
+        self.btnSetRele = QPushButton(self)
+        self.btnSetRele.setText("建立关联")
+        self.btnSetRele.clicked.connect(self.save_rele)
+
+        # 左图复位按钮
+        self.btnReset = QPushButton(self)
+        self.btnReset.setText("左图复位")
+        self.btnReset.clicked.connect(self.reset)
+
+        # 右图复位按钮
+        self.btnReset_1 = QPushButton(self)
+        self.btnReset_1.setText("右图复位")
+        self.btnReset_1.clicked.connect(self.reset_1)
+
+        # 消息提示框
+        self.editHint = QLineEdit(self)
+        self.editHint = QLineEdit(self)
+        self.editHint.setPlaceholderText("消息提示")
+        self.editHint.setReadOnly(True)
 
         self.setStyleSheet(
             "QPushButton{background-color: rgb(39, 118, 148)}"
@@ -182,9 +270,9 @@ class Window(QWidget):
         )
 
         # Arrange layout
-        HBlayoutAll=QHBoxLayout(self)
+        HBlayoutAll = QHBoxLayout(self)
 
-
+        # 左起，第一列布局，垂直布局。
         VBlayout = QVBoxLayout()
         VBlayout.addWidget(self.viewer)
         HBlayout = QHBoxLayout()
@@ -204,12 +292,26 @@ class Window(QWidget):
         HBlayoutSecond.addWidget(self.editContourArea)
         HBlayoutSecond.addWidget(self.editContourPerimeter)
         HBlayoutSecond.addWidget(self.editContourCentre)
+        HBlayoutSecond.addWidget(self.btnContourSave)
 
+        # 第三行信息
+        HBlayoutThird = QHBoxLayout()
+        HBlayoutThird.setAlignment(Qt.AlignLeft)
+        HBlayoutThird.addWidget(self.btnSite)
+        HBlayoutThird.addWidget(self.btnSiteInfo)
+        HBlayoutThird.addWidget(self.site_ContourName)
+        HBlayoutThird.addWidget(self.editSiteName)
+        HBlayoutThird.addWidget(self.editSiteSlope)
+        HBlayoutThird.addWidget(self.editSiteLenth)
+        HBlayoutThird.addWidget(self.editSitePos)
+        HBlayoutThird.addWidget(self.btnSiteSave)
 
         VBlayout.addLayout(HBlayout)
         VBlayout.addLayout(HBlayoutSecond)
+        VBlayout.addLayout(HBlayoutThird)
 
-        #右边图片的布局
+        ##左起，第二列布局，垂直布局。
+        # 右边图片的布局
         VBlayout_1 = QVBoxLayout()
         VBlayout_1.addWidget(self.viewer_1)
         HBlayout_1 = QHBoxLayout()
@@ -229,68 +331,90 @@ class Window(QWidget):
         HBlayoutSecond_1.addWidget(self.editContourArea_1)
         HBlayoutSecond_1.addWidget(self.editContourPerimeter_1)
         HBlayoutSecond_1.addWidget(self.editContourCentre_1)
+        HBlayoutSecond_1.addWidget(self.btnContourSave_1)
+
+        # 第三行信息
+        HBlayoutThird_1 = QHBoxLayout()
+        HBlayoutThird_1.setAlignment(Qt.AlignLeft)
+        HBlayoutThird_1.addWidget(self.btnSite_1)
+        HBlayoutThird_1.addWidget(self.btnSiteInfo_1)
+        HBlayoutThird_1.addWidget(self.site_ContourName_1)
+        HBlayoutThird_1.addWidget(self.editSiteName_1)
+        HBlayoutThird_1.addWidget(self.editSiteSlope_1)
+        HBlayoutThird_1.addWidget(self.editSiteLenth_1)
+        HBlayoutThird_1.addWidget(self.editSitePos_1)
+        HBlayoutThird_1.addWidget(self.btnSiteSave_1)
 
         VBlayout_1.addLayout(HBlayout_1)
         VBlayout_1.addLayout(HBlayoutSecond_1)
+        VBlayout_1.addLayout(HBlayoutThird_1)
+
+        ##左起，第三列布局，垂直布局。
+        VBlayout_2 = QVBoxLayout()
+        VBlayout_2.addWidget(self.btnSetRele)
+        VBlayout_2.addWidget(self.btnReset)
+        VBlayout_2.addWidget(self.btnReset_1)
+        # VBlayout_2.addWidget(self.editHint)
 
         HBlayoutAll.addLayout(VBlayout)
         HBlayoutAll.addLayout(VBlayout_1)
+        HBlayoutAll.addLayout(VBlayout_2)
 
         self.setGeometry(500, 300, 800, 600)
         self.setWindowTitle('历史时空')
         self.setWindowIcon(QIcon('windowIcon.png'))
         self.show()
 
-    #图片加载
+    # 图片加载
     def loadImage(self):
-            fname, _ = QFileDialog.getOpenFileName(self, "选择地图", 'D:\\0Kind of File\\Map\\中国历史地图第三版',
-                                                   'Image files(*.jpg *.gif *.png)')
-            # fi = QtCott
-            # re.QFileInfo(fname) 获取fname的信息
-            if not fname:
-                pass
+        self.fname, _ = QFileDialog.getOpenFileName(self, "选择地图", 'D:\\0Kind of File\\Map\\中国历史地图第三版',
+                                                    'Image files(*.jpg *.gif *.png)')
+        # fi = QtCott
+        # re.QFileInfo(fname) 获取fname的信息
+        if not self.fname:
+            pass
+        else:
+            # 从新加载图片，清空变量
+            # 存储加载的图片和抽取的轮廓
+            self.image = array([])
+            self.cnt = array([])
+
+            # 鼠标点击坐标和鼠标释放坐标
+            self.x_clicked = 0
+            self.y_clicked = 0
+            self.x_released = 0
+            self.y_released = 0
+
+            self.image = cv.imdecode(fromfile(self.fname, dtype=uint8), -1)
+            year_img = self.image[0:100, 0:500]
+            cut_bila = cv.bilateralFilter(year_img, d=0, sigmaColor=75, sigmaSpace=15)
+            cv.imwrite('image/year.jpg', cut_bila)
+            year_str = self.baidu_api.picture2text('image/year.jpg')
+            year_int = findall(r'\d+', year_str)
+            if '前' in year_str:
+                map_year = -int(year_int[0])
             else:
-                # 从新加载图片，清空变量
-                # 存储加载的图片和抽取的轮廓
-                self.image = array([])
-                self.cnt = array([])
-
-                # 鼠标点击坐标和鼠标释放坐标
-                self.x_clicked = 0
-                self.y_clicked = 0
-                self.x_released = 0
-                self.y_released = 0
-
-                self.image = cv.imdecode(fromfile(fname, dtype=uint8), -1)
-                year_img = self.image[0:100, 0:500]
-                cut_bila = cv.bilateralFilter(year_img, d=0, sigmaColor=75, sigmaSpace=15)
-                cv.imwrite('image/year.jpg', cut_bila)
-                year_str = self.baidu_api.picture2text('image/year.jpg')
-                year_int = findall(r'\d+', year_str)
-                if '前' in year_str:
-                    map_year = -int(year_int[0])
-                else:
-                    map_year = int(year_int[0])
-                myimage = open(fname, 'rb')
-                map_img = myimage.read()
-                #mysqlConn = MySqlConn()
-                self.editYearInfo.setText(str(map_year))
-                # print(len(map_img))
-                #mysqlConn.img_insert(map_year=map_year, map_img=map_img)
-                image_height, image_width, image_depth = self.image.shape
-                QIm = cv.cvtColor(self.image, cv.COLOR_BGR2RGB)
-                QIm = QImage(QIm.data, image_width, image_height, image_width * image_depth,
-                             QImage.Format_RGB888)
-                self.viewer.setPhoto(QPixmap.fromImage(QIm))
-                self.viewer.fitInView()
+                map_year = int(year_int[0])
+            # myimage = open(self.fname, 'rb')
+            # map_img = myimage.read()
+            # mysqlConn = MySqlConn()
+            self.editYearInfo.setText(str(map_year))
+            # print(len(map_img))
+            # mysqlConn.img_insert(map_year=map_year, map_img=map_img)
+            image_height, image_width, image_depth = self.image.shape
+            QIm = cv.cvtColor(self.image, cv.COLOR_BGR2RGB)
+            QIm = QImage(QIm.data, image_width, image_height, image_width * image_depth,
+                         QImage.Format_RGB888)
+            self.viewer.setPhoto(QPixmap.fromImage(QIm))
+            self.viewer.fitInView()
 
     #     图片加载——第二个图片
     def loadImage_1(self):
-        fname, _ = QFileDialog.getOpenFileName(self, "选择地图", 'D:\\0Kind of File\\Map\\中国历史地图第三版',
-                                               'Image files(*.jpg *.gif *.png)')
+        self.fname_1, _ = QFileDialog.getOpenFileName(self, "选择地图", 'D:\\0Kind of File\\Map\\中国历史地图第三版',
+                                                      'Image files(*.jpg *.gif *.png)')
         # fi = QtCott
         # re.QFileInfo(fname) 获取fname的信息
-        if not fname:
+        if not self.fname_1:
             pass
         else:
             # 从新加载图片，清空变量
@@ -304,7 +428,7 @@ class Window(QWidget):
             self.x_released_1 = 0
             self.y_released_1 = 0
 
-            self.image_1 = cv.imdecode(fromfile(fname, dtype=uint8), -1)
+            self.image_1 = cv.imdecode(fromfile(self.fname_1, dtype=uint8), -1)
             year_img = self.image_1[0:100, 0:500]
             cut_bila = cv.bilateralFilter(year_img, d=0, sigmaColor=75, sigmaSpace=15)
             cv.imwrite('image/year.jpg', cut_bila)
@@ -314,12 +438,12 @@ class Window(QWidget):
                 map_year = -int(year_int[0])
             else:
                 map_year = int(year_int[0])
-            myimage = open(fname, 'rb')
-            map_img = myimage.read()
-            #mysqlConn = MySqlConn()
+            # myimage = open(self.fname_1, 'rb')
+            # map_img = myimage.read()
+            # mysqlConn = MySqlConn()
             self.editYearInfo_1.setText(str(map_year))
             # print(len(map_img))
-            #mysqlConn.img_insert(map_year=map_year, map_img=map_img)
+            # mysqlConn.img_insert(map_year=map_year, map_img=map_img)
             image_height, image_width, image_depth = self.image_1.shape
             QIm = cv.cvtColor(self.image_1, cv.COLOR_BGR2RGB)
             QIm = QImage(QIm.data, image_width, image_height, image_width * image_depth,
@@ -379,7 +503,8 @@ class Window(QWidget):
         # 判断需要提取的hsv区间
         color = False
         for key, value in self.color_dict.items():
-            if color_hsv[0] >= value[0][0] and color_hsv[0] <= value[1][0] and color_hsv[1] >= value[0][1] and color_hsv[1] <= value[1][1] and color_hsv[2] >= value[0][2] and color_hsv[2] <= value[1][2]:
+            if color_hsv[0] >= value[0][0] and color_hsv[0] <= value[1][0] and color_hsv[1] >= value[0][1] and \
+                    color_hsv[1] <= value[1][1] and color_hsv[2] >= value[0][2] and color_hsv[2] <= value[1][2]:
                 color = True
                 lower_HSV = value[0]
                 upper_HSV = value[1]
@@ -428,6 +553,7 @@ class Window(QWidget):
 
             # OpenCV3 的findContours有三个返回值，OpenCV 4的有四个返回值
             # 应该安装opencv-python 3.*版本。
+            # cnts ：返回的轮廓的列表
             myImage, cnts, hierarchy = cv.findContours(closed, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
             num = 0
             con_exit = False
@@ -444,9 +570,6 @@ class Window(QWidget):
                 img_contour = cv.drawContours(self.image.copy(), cnts, num, (255, 255, 255), 3)
                 # img_contour1 = cv.drawContours(back, cnts, num, (0, 0, 255), 3)
                 # 重新渲染
-                # cv.namedWindow("Img2", cv.WINDOW_KEEPRATIO)
-                # cv.imshow("Img2", img_contour1)
-                # cv.imwrite("img2.jpg", img_contour1)
                 image_height, image_width, image_depth = img_contour.shape
                 QIm = cv.cvtColor(img_contour, cv.COLOR_BGR2RGB)
                 QIm = QImage(QIm.data, image_width, image_height, image_width * image_depth,
@@ -475,7 +598,6 @@ class Window(QWidget):
         for key, value in self.color_dict.items():
             if color_hsv[0] >= value[0][0] and color_hsv[0] <= value[1][0] and color_hsv[1] >= value[0][1] \
                     and color_hsv[1] <= value[1][1] and color_hsv[2] >= value[0][2] and color_hsv[2] <= value[1][2]:
-                print("11111111111111")
                 color = True
                 lower_HSV = value[0]
                 upper_HSV = value[1]
@@ -483,7 +605,7 @@ class Window(QWidget):
                 self.color_dict[key] = value
 
                 break
-        print(color)
+        # (color)
         if not color:
             print("请重新选区颜色")
         else:
@@ -519,11 +641,8 @@ class Window(QWidget):
             kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
             # 闭运算，先腐蚀后膨胀，去除黑色小点
             closed = cv.morphologyEx(th, cv.MORPH_CLOSE, kernel, iterations=6)
-            # 轮廓生成
-            # cv.namedWindow("Img1", cv.WINDOW_KEEPRATIO)
-            # cv.imshow("Img1", closed)
-            # cv.imwrite("img1.jpg", closed)
 
+            # 轮廓生成
             # OpenCV3 的findContours有三个返回值，OpenCV 4的有四个返回值
             # 应该安装opencv-python 3.*版本。
             myImage, cnts, hierarchy = cv.findContours(closed, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
@@ -542,9 +661,6 @@ class Window(QWidget):
                 img_contour = cv.drawContours(self.image_1.copy(), cnts, num, (255, 255, 255), 3)
                 # img_contour1 = cv.drawContours(back, cnts, num, (0, 0, 255), 3)
                 # 重新渲染
-                # cv.namedWindow("Img2", cv.WINDOW_KEEPRATIO)
-                # cv.imshow("Img2", img_contour1)
-                # cv.imwrite("img2.jpg", img_contour1)
                 image_height, image_width, image_depth = img_contour.shape
                 QIm = cv.cvtColor(img_contour, cv.COLOR_BGR2RGB)
                 QIm = QImage(QIm.data, image_width, image_height, image_width * image_depth,
@@ -566,10 +682,26 @@ class Window(QWidget):
             self.viewer._contour = False
             self.btnDrag.setStyleSheet("QPushButton{color:white}")
 
+    # 轮廓拖动模式切换——第二个图片
+    def dragOutline_1(self):
+        if not self.viewer_1._contour:
+            self.viewer_1._contour = True
+            self.viewer_1.toggleDragMode()
+            self.btnClickDrag_1.setIcon(QIcon("image/clickIcon.png"))
+            self.btnDrag_1.setStyleSheet("QPushButton{color:red}")
+        else:
+            self.viewer_1._contour = False
+            self.btnDrag_1.setStyleSheet("QPushButton{color:white}")
+
     # 获取鼠标松开的位置坐标
     def mouse_releasePoint(self, pos):
         self.x_released = pos.x()
         self.y_released = pos.y()
+
+    # 获取鼠标松开的位置坐标——第二个图片
+    def mouse_releasePoint_1(self, pos):
+        self.x_released_1 = pos.x()
+        self.y_released_1 = pos.y()
 
     # 轮廓拖动函数
     def contourDraged(self, pos):
@@ -604,6 +736,39 @@ class Window(QWidget):
                 self.viewer.curve_mode = True
                 self.viewer.toggleDragMode()  # 判断是否还处于拖拽模式
 
+    # 轮廓拖动函数——第二个图片
+    def contourDraged_1(self, pos):
+
+        if self.viewer_1.dragMode() == QGraphicsView.NoDrag and self.viewer_1._contour == True:
+
+            if self.cnt_1.any():
+                for p in self.cnt_1:
+                    if ((p[0][0] - self.x_clicked_1) ** 2 + (p[0][1] - self.y_clicked_1) ** 2) <= 25:
+                        p[0][0] = p[0][0] + (pos.x() - self.x_clicked_1) * 0.9
+                        p[0][1] = p[0][1] + (pos.y() - self.y_clicked_1) * 0.9
+                    elif ((p[0][0] - self.x_clicked_1) ** 2 + (p[0][1] - self.y_clicked_1) ** 2) <= 100:
+                        p[0][0] = p[0][0] + (pos.x() - self.x_clicked_1) * 0.7
+                        p[0][1] = p[0][1] + (pos.y() - self.y_clicked_1) * 0.7
+                    elif ((p[0][0] - self.x_clicked_1) ** 2 + (p[0][1] - self.y_clicked_1) ** 2) <= 225:
+                        p[0][0] = p[0][0] + (pos.x() - self.x_clicked_1) * 0.5
+                        p[0][1] = p[0][1] + (pos.y() - self.y_clicked_1) * 0.5
+                    elif ((p[0][0] - self.x_clicked_1) ** 2 + (p[0][1] - self.y_clicked_1) ** 2) <= 400:
+                        p[0][0] = p[0][0] + (pos.x() - self.x_clicked_1) * 0.3
+                        p[0][1] = p[0][1] + (pos.y() - self.y_clicked_1) * 0.3
+                    elif ((p[0][0] - self.x_clicked_1) ** 2 + (p[0][1] - self.y_clicked_1) ** 2) <= 625:
+                        p[0][0] = p[0][0] + (pos.x() - self.x_clicked_1) * 0.1
+                        p[0][1] = p[0][1] + (pos.y() - self.y_clicked_1) * 0.1
+
+                # 重新渲染图元
+                img_contour = cv.drawContours(self.image_1.copy(), self.cnt_1, -1, (255, 255, 255), 3)
+                image_height, image_width, image_depth = img_contour.shape
+                QIm = cv.cvtColor(img_contour, cv.COLOR_BGR2RGB)
+                QIm = QImage(QIm.data, image_width, image_height, image_width * image_depth,
+                             QImage.Format_RGB888)
+                self.viewer_1.setPhoto(QPixmap.fromImage(QIm))
+                self.viewer_1.curve_mode = True
+                self.viewer_1.toggleDragMode()  # 判断是否还处于拖拽模式
+
     # 获取轮廓的信息
     def contour_info(self):
         if self.cnt.any():
@@ -630,7 +795,7 @@ class Window(QWidget):
             self.editContourPerimeter.setText("%d" % (contour_perimeter))
             self.editContourCentre.setText("%d,%d" % (int(M['m10'] / M['m00']), int(M['m01'] / M['m00'])))
 
-    # 获取轮廓的信息
+    # 获取轮廓的信息——第二个图片
     def contour_info_1(self):
         if self.cnt_1.any():
             ROI = zeros(self.image_1.shape[:2], uint8)
@@ -656,19 +821,356 @@ class Window(QWidget):
             self.editContourPerimeter_1.setText("%d" % (contour_perimeter))
             self.editContourCentre_1.setText("%d,%d" % (int(M['m10'] / M['m00']), int(M['m01'] / M['m00'])))
 
-    #存储轮廓关联
-    def save_rele(self):
-        contour_year = int(self.editYearInfo.text())
-        contour_name = contour_year+self.editcontourName.text()
+    # 轮廓存储
+    def save_contour(self):
+        # 判断鼠标点击是否在原轮廓，
+        # mesure = cv.pointPolygonTest(self.cnt, (self.x_clicked, self.y_clicked), measureDist=False)
+        # # 不在，说明原轮廓处理完毕，可以将其所包含的区域填充黑色
+        # if mesure != 1:
 
-        contour_year_1 = int(self.editYearInfo_1.text())
-        contour_name_1 = contour_year_1+self.editcontourName_1.text()
+        ## 将self.image 修改了
+        self.image = cv.drawContours(self.image, [self.cnt], 0, (0, 0, 0), -1)
+        contour_year = int(self.editYearInfo.text())
+        contour_name = self.editcontourName.text()
+        contour_points_arr = self.cnt
+        # (contour_points_arr)
+        contour_points = dumps(contour_points_arr)  # narray 转换为二进制
+        # print(contour_points)
+        contour_area = float(self.editContourArea.text())
+        contour_perimeter = float(self.editContourPerimeter.text())
+        contour_centre = self.editContourCentre.text()
 
         mysqlConn = MySqlConn()
-        mysqlConn.rele_insert(contour_year,contour_name,contour_name_1,"")
-        mysqlConn.rele_insert(contour_year_1,contour_name_1,"",contour_name)
+        mysqlConn.contour_insert(contour_year, contour_name, contour_points, contour_area, contour_perimeter,
+                                 contour_centre)
 
-    # hsv列表
+    # 轮廓存储——第二个图片
+    def save_contour_1(self):
+        # 判断鼠标点击是否在原轮廓，
+        # mesure = cv.pointPolygonTest(self.cnt, (self.x_clicked, self.y_clicked), measureDist=False)
+        # # 不在，说明原轮廓处理完毕，可以将其所包含的区域填充黑色
+        # if mesure != 1:
+        #     # 将self.image 修改了
+        # 获取色调范围列表
+        self.image_1 = cv.drawContours(self.image_1, [self.cnt_1], 0, (0, 0, 0), -1)
+        contour_year = int(self.editYearInfo_1.text())
+        contour_name = self.editcontourName_1.text()
+        contour_points_arr = self.cnt_1
+        # print(contour_points_arr)
+        contour_points = dumps(contour_points_arr)  # narray 转换为二进制
+        # print(contour_points)
+        contour_area = float(self.editContourArea_1.text())
+        contour_perimeter = float(self.editContourPerimeter_1.text())
+        contour_centre = self.editContourCentre_1.text()
+
+        mysqlConn = MySqlConn()
+        mysqlConn.contour_insert(contour_year, contour_name, contour_points, contour_area, contour_perimeter,
+                                 contour_centre)
+
+    # 存储轮廓关联
+    def save_rele(self):
+
+        # 将关联的两个轮廓区域覆盖黑色
+        self.image = cv.drawContours(self.image, [self.cnt], 0, (0, 0, 0), -1)
+        self.image_1 = cv.drawContours(self.image_1, [self.cnt_1], 0, (0, 0, 0), -1)
+
+        # 基本思路：
+        #     先去数据表map_rele中查询图片是否存在。
+        #     如果该图片作为左侧图片时，已经存在，说明该图片已有前序。
+        #     如果该图片作为右侧图片时，已经存在，说明该图片已有后序。
+
+        # 第一个轮廓时间、名字
+        contour_year = int(self.editYearInfo.text())
+        print(contour_year, type(contour_year))
+        contour_name = self.editcontourName.text()
+        print(contour_name, type(contour_name))
+
+        # 第二个轮廓时间、名字
+        contour_year_1 = int(self.editYearInfo_1.text())
+        print(contour_year_1, type(contour_year_1))
+        contour_name_1 = self.editcontourName_1.text()
+        print(contour_name_1, type(contour_name_1))
+
+        # 查询左侧轮廓在数据库中是否存在，返回ret
+        mysqlConn1 = MySqlConn()
+        ret = mysqlConn1.select_contour(contour_year, contour_name)
+        # 如果ret非空，则说明左侧轮廓已经有了前序轮廓。
+        if ret:
+            # 当ret[2] ret[3]都不为空时，all函数返回true
+            if all([ret[2], ret[3]]):
+                pre_contour_year = ret[2]
+                pre_contour = ret[3]
+                print(ret[2])
+                print(ret[3])
+                # 此时要存入数据库的后序轮廓就是右边图片中的轮廓。
+                next_contour_year = contour_year_1
+                next_contour = contour_name_1
+
+                print(pre_contour_year, pre_contour, next_contour_year, next_contour)
+
+                mysqlConn2 = MySqlConn()
+                mysqlConn2.insert_rele(contour_year, contour_name, pre_contour_year, pre_contour, next_contour_year,
+                                       next_contour)
+            else:
+                print("左侧轮廓在数据库中已有数据，但ret[2]或ret[3] 为空,说明左侧轮廓多次作为前序轮廓写入数据库")
+                print("比如；左侧轮廓A关联到右侧轮廓B，但A真正对应的是C，将右侧复位后，就出现以上情况（A的ret[2]=0，ret[3]为空），"
+                      "此时应该更新A的后序")
+                mysqlConn3 = MySqlConn()
+                mysqlConn3.insert_rele(contour_year, contour_name, ret[2], ret[3], contour_year_1, contour_name_1)
+        else:
+            # 数据库中没有左侧轮廓的关联信息，则直接插入，前序轮廓赋值为空。时间赋值为0.
+            mysqlConn4 = MySqlConn()
+            mysqlConn4.insert_rele(map_year=contour_year, contour_name=contour_name, pre_contour_year=0,
+                                   pre_contour=None, next_contour_year=contour_year_1, next_contour=contour_name_1)
+
+        # 在数据库中查询右侧轮廓是否存在
+        mysqlConn5 = MySqlConn()
+        ret_1 = mysqlConn5.select_contour(contour_year_1, contour_name_1)
+        # 如果ret_1非空，则说明右侧轮廓已经有了后序轮廓。
+        if ret_1:
+            if all([ret_1[4], ret_1[5]]):
+                # 此时要存入数据库的前序轮廓就是左边图片中的轮廓。
+                pre_contour_year = contour_year
+                pre_contour = contour_name
+                next_contour_year = ret_1[4]
+                next_contour = ret_1[5]
+                mysqlConn6 = MySqlConn()
+                mysqlConn6.insert_rele(contour_year, contour_name, pre_contour_year, pre_contour, next_contour_year,
+                                       next_contour)
+            else:
+                print("右侧轮廓在数据库中已有数据，但ret[4]或ret[5] 为空,说明右边轮廓多次作为后序轮廓，写入数据库")
+                print("比如；右侧轮廓B已经被左侧轮廓A关联，但B真正的前序是左侧的C，将左侧复位后，就出现以上情况（B的ret[4]=0，ret[5]为空），"
+                      "此时应该更新B的前序")
+                mysqlConn7 = MySqlConn()
+                mysqlConn7.insert_rele(contour_year_1, contour_name_1, contour_year, contour_name, ret_1[4], ret_1[5])
+
+        else:
+            mysqlConn8 = MySqlConn()
+            mysqlConn8.insert_rele(map_year=contour_year_1, contour_name=contour_name_1, pre_contour_year=contour_year,
+                                   pre_contour=contour_name, next_contour_year=0, next_contour=None)
+
+    # 图片复位
+    def reset(self):
+        print("reset 1")
+        # 重新读入图片
+        self.image = cv.imdecode(fromfile(self.fname, dtype=uint8), -1)
+        image_height, image_width, image_depth = self.image.shape
+        QIm = cv.cvtColor(self.image, cv.COLOR_BGR2RGB)
+        QIm = QImage(QIm.data, image_width, image_height, image_width * image_depth,
+                     QImage.Format_RGB888)
+        self.viewer.setPhoto(QPixmap.fromImage(QIm))
+        self.viewer.fitInView()
+
+    def reset_1(self):
+        print("reset 2")
+        self.image_1 = cv.imdecode(fromfile(self.fname_1, dtype=uint8), -1)
+        image_height, image_width, image_depth = self.image_1.shape
+        QIm = cv.cvtColor(self.image_1, cv.COLOR_BGR2RGB)
+        QIm = QImage(QIm.data, image_width, image_height, image_width * image_depth,
+                     QImage.Format_RGB888)
+        self.viewer_1.setPhoto(QPixmap.fromImage(QIm))
+        self.viewer_1.fitInView()
+
+    # 开启文字识别模式
+    def site_choose(self):
+        if not self.viewer._ocr:
+            self.viewer._ocr = True
+            self.viewer.toggleDragMode()
+            self.x_clicked = 0
+            self.y_clicked = 0
+            self.x_released = 0
+            self.y_released = 0
+            self.btnSite.setStyleSheet("QPushButton{color:red}")
+            self.ocr_flag = True
+            self.btnClickDrag.setIcon(QIcon("image/clickIcon"))
+        else:
+            self.viewer._ocr = False
+            self.btnSite.setStyleSheet("QPushButton{color:white}")
+            self.ocr_flag = False
+
+    # 开启文字识别模式——第二个图片
+    def site_choose_1(self):
+        if not self.viewer_1._ocr:
+            self.viewer_1._ocr = True
+            self.viewer_1.toggleDragMode()
+            self.x_clicked_1 = 0
+            self.y_clicked_1 = 0
+            self.x_released_1 = 0
+            self.y_released_1 = 0
+            self.btnSite_1.setStyleSheet("QPushButton{color:red}")
+            self.ocr_flag_1 = True
+            self.btnClickDrag_1.setIcon(QIcon("image/clickIcon"))
+        else:
+            self.viewer._ocr_1 = False
+            self.btnSite_1.setStyleSheet("QPushButton{color:white}")
+            self.ocr_flag_1 = False
+
+    # 文字区域画线
+    def draw_line(self, pos):
+        if self.viewer._ocr and self.x_clicked or self.y_clicked:
+            img_line = cv.line(self.image.copy(), (self.x_clicked, self.y_clicked), (pos.x(), pos.y()), (0, 0, 0), 2)
+            image_height, image_width, image_depth = img_line.shape
+            QIm = cv.cvtColor(img_line, cv.COLOR_BGR2RGB)
+            QIm = QImage(QIm.data, image_width, image_height, image_width * image_depth,
+                         QImage.Format_RGB888)
+            self.viewer.setPhoto(QPixmap.fromImage(QIm))
+        # 终止画线
+        if self.x_released or self.y_released:
+            self.choosePoints = []  # 初始化存储点组
+            inf = float("inf")
+            if self.x_released or self.y_released:
+                if (self.x_released - self.x_clicked) == 0:
+                    slope = inf
+                else:
+                    slope = (self.y_released - self.y_clicked) / (self.x_released - self.x_clicked)
+
+                siteLenth = 0.5 * math.sqrt(
+                    square(self.y_released - self.y_clicked) + square(self.x_released - self.x_clicked))
+
+                mySiteLenth = 2 * siteLenth
+                self.siteLenth = ("%.2f" % mySiteLenth)
+                self.editSiteLenth.setText(self.siteLenth)
+                radian = math.atan(slope)
+                self.siteSlope = ("%.2f" % radian)
+                self.editSiteSlope.setText(self.siteSlope)
+                x_bas = math.ceil(math.fabs(0.5 * siteLenth * math.sin(radian)))
+                y_bas = math.ceil(math.fabs(0.5 * siteLenth * math.cos(radian)))
+
+                if slope <= 0:
+                    self.choosePoints.append([(self.x_clicked - x_bas), (self.y_clicked - y_bas)])
+                    self.choosePoints.append([(self.x_clicked + x_bas), (self.y_clicked + y_bas)])
+                    self.choosePoints.append([(self.x_released + x_bas), (self.y_released + y_bas)])
+                    self.choosePoints.append([(self.x_released - x_bas), (self.y_released - y_bas)])
+                elif slope > 0:
+                    self.choosePoints.append([(self.x_clicked + x_bas), (self.y_clicked - y_bas)])
+                    self.choosePoints.append([(self.x_clicked - x_bas), (self.y_clicked + y_bas)])
+                    self.choosePoints.append([(self.x_released - x_bas), (self.y_released + y_bas)])
+                    self.choosePoints.append([(self.x_released + x_bas), (self.y_released - y_bas)])
+            self.viewer._ocr = False
+
+    # 文字区域画线——第二个图片
+    def draw_line_1(self, pos):
+        if self.viewer_1._ocr and self.x_clicked_1 or self.y_clicked_1:
+            img_line = cv.line(self.image_1.copy(), (self.x_clicked_1, self.y_clicked_1), (pos.x(), pos.y()), (0, 0, 0),
+                               2)
+            image_height, image_width, image_depth = img_line.shape
+            QIm = cv.cvtColor(img_line, cv.COLOR_BGR2RGB)
+            QIm = QImage(QIm.data, image_width, image_height, image_width * image_depth,
+                         QImage.Format_RGB888)
+            self.viewer_1.setPhoto(QPixmap.fromImage(QIm))
+        # 终止画线
+        if self.x_released_1 or self.y_released_1:
+            self.choosePoints_1 = []  # 初始化存储点组
+            inf = float("inf")
+            if self.x_released_1 or self.y_released_1:
+                if (self.x_released_1 - self.x_clicked_1) == 0:
+                    slope = inf
+                else:
+                    slope = (self.y_released_1 - self.y_clicked_1) / (self.x_released_1 - self.x_clicked_1)
+
+                siteLenth = 0.5 * math.sqrt(
+                    square(self.y_released_1 - self.y_clicked_1) + square(self.x_released_1 - self.x_clicked_1))
+
+                mySiteLenth = 2 * siteLenth
+                self.siteLenth_1 = ("%.2f" % mySiteLenth)
+                self.editSiteLenth_1.setText(self.siteLenth_1)
+                radian = math.atan(slope)
+                self.siteSlope_1 = ("%.2f" % radian)
+                self.editSiteSlope_1.setText(self.siteSlope_1)
+                x_bas = math.ceil(math.fabs(0.5 * siteLenth * math.sin(radian)))
+                y_bas = math.ceil(math.fabs(0.5 * siteLenth * math.cos(radian)))
+
+                if slope <= 0:
+                    self.choosePoints_1.append([(self.x_clicked_1 - x_bas), (self.y_clicked_1 - y_bas)])
+                    self.choosePoints_1.append([(self.x_clicked_1 + x_bas), (self.y_clicked_1 + y_bas)])
+                    self.choosePoints_1.append([(self.x_released_1 + x_bas), (self.y_released_1 + y_bas)])
+                    self.choosePoints_1.append([(self.x_released_1 - x_bas), (self.y_released_1 - y_bas)])
+                elif slope > 0:
+                    self.choosePoints_1.append([(self.x_clicked_1 + x_bas), (self.y_clicked_1 - y_bas)])
+                    self.choosePoints_1.append([(self.x_clicked_1 - x_bas), (self.y_clicked_1 + y_bas)])
+                    self.choosePoints_1.append([(self.x_released_1 - x_bas), (self.y_released_1 + y_bas)])
+                    self.choosePoints_1.append([(self.x_released_1 + x_bas), (self.y_released_1 - y_bas)])
+            self.viewer_1._ocr = False
+
+    # 求地点信息
+    def site_info(self):
+        if self.ocr_flag:
+            if self.choosePoints:
+                site_contourName = self.editcontourName.text()
+                self.site_ContourName.setText(site_contourName)
+                points = array([self.choosePoints], int32)
+                pts = points.reshape(-1, 1, 2)
+                ROI = zeros(self.image.shape[:2], uint8)
+                proimage = self.image.copy()
+                roi = cv.drawContours(ROI, [pts], 0, (255, 255, 255), -1)
+                x, y, w, h = cv.boundingRect(pts)
+                imgroi = cv.bitwise_and(proimage, proimage, mask=roi)
+                site = imgroi[y:y + h, x:x + w]
+                cut_bila = cv.bilateralFilter(site, d=0, sigmaColor=75, sigmaSpace=15)
+                self.site_centre = ((x + 0.5 * w), (y + 0.5 * h))
+                cv.imwrite('image/site.jpg', cut_bila)
+                siteName = self.baidu_api.picture2text('image/site.jpg')
+                self.editSiteName.setText(siteName)
+                self.editSitePos.setText(str(self.site_centre))
+
+                self.viewer._ocr = True
+                self.viewer.toggleDragMode()
+                self.x_clicked = 0
+                self.y_clicked = 0
+                self.x_released = 0
+                self.y_released = 0
+
+    # 求地点信息——第二个图片
+    def site_info_1(self):
+        if self.ocr_flag_1:
+            if self.choosePoints_1:
+                site_contourName = self.editcontourName_1.text()
+                self.site_ContourName_1.setText(site_contourName)
+                points = array([self.choosePoints_1], int32)
+                pts = points.reshape(-1, 1, 2)
+                ROI = zeros(self.image_1.shape[:2], uint8)
+                proimage = self.image_1.copy()
+                roi = cv.drawContours(ROI, [pts], 0, (255, 255, 255), -1)
+                x, y, w, h = cv.boundingRect(pts)
+                imgroi = cv.bitwise_and(proimage, proimage, mask=roi)
+                site = imgroi[y:y + h, x:x + w]
+                cut_bila = cv.bilateralFilter(site, d=0, sigmaColor=75, sigmaSpace=15)
+                self.site_centre_1 = ((x + 0.5 * w), (y + 0.5 * h))
+                cv.imwrite('image/site.jpg', cut_bila)
+                siteName = self.baidu_api_1.picture2text('image/site.jpg')
+                self.editSiteName_1.setText(siteName)
+                self.editSitePos_1.setText(str(self.site_centre_1))
+
+                self.viewer_1._ocr = True
+                self.viewer_1.toggleDragMode()
+                self.x_clicked_1 = 0
+                self.y_clicked_1 = 0
+                self.x_released_1 = 0
+                self.y_released_1 = 0
+
+    # 存储地点信息
+    def save_site(self):
+        site_year = int(self.editYearInfo.text())
+        site_name = self.editSiteName.text()
+        site_contour = self.site_ContourName.text()
+        site_slpoe = float(self.siteSlope)
+        site_lenth = float(self.siteLenth)
+        site_centre = str(self.site_centre)
+        mysqlConn = MySqlConn()
+        mysqlConn.site_insert(site_year, site_name, site_contour, site_slpoe, site_lenth, site_centre)
+
+    # 存储地点信息——第二个图片
+    def save_site_1(self):
+        site_year = int(self.editYearInfo_1.text())
+        site_name = self.editSiteName_1.text()
+        site_contour = self.site_ContourName_1.text()
+        site_slpoe = float(self.siteSlope_1)
+        site_lenth = float(self.siteLenth_1)
+        site_centre = str(self.site_centre_1)
+        mysqlConn = MySqlConn()
+        mysqlConn.site_insert(site_year, site_name, site_contour, site_slpoe, site_lenth, site_centre)
+
+
 if __name__ == '__main__':
     import sys
 
