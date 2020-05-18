@@ -4,13 +4,15 @@
 # @File    : rele_window.py
 # @Software: PyCharm
 from pickle import dumps
+
+from PyQt5.uic.properties import QtWidgets
 from numpy import array, fromfile, uint8, zeros, square, math, int32, ones
 import cv2 as cv
 from re import findall
 from PyQt5.QtWidgets import QPushButton, QLineEdit, QHBoxLayout, QVBoxLayout, QFileDialog, QWidget, QGraphicsView, \
-    QApplication,QLabel
+    QApplication, QLabel, QMessageBox
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QImage, QPixmap,QFont
+from PyQt5.QtGui import QIcon, QImage, QPixmap, QFont
 from baidu_ocr import BaiDuAPI
 from photo_viewer import PhotoViewer
 from mysql_conn import MySqlConn
@@ -242,9 +244,15 @@ class Window(QWidget):
         self.btnSiteSave_1.clicked.connect(self.save_site_1)
 
         # 第三列按钮
+        #建立关联按钮
         self.btnSetRele = QPushButton(self)
         self.btnSetRele.setText("建立关联")
         self.btnSetRele.clicked.connect(self.save_rele)
+
+        # 删除关联按钮
+        self.btnDeleteRele = QPushButton(self)
+        self.btnDeleteRele.setText("删除关联")
+        self.btnDeleteRele.clicked.connect(self.delete_rele_confirm)
 
         # 左图复位按钮
         self.btnReset = QPushButton(self)
@@ -256,14 +264,14 @@ class Window(QWidget):
         self.btnReset_1.setText("右图复位")
         self.btnReset_1.clicked.connect(self.reset_1)
 
-        #显示时间信息的label
-        self.labelTime=QLabel(self)
+        # 显示时间信息的label
+        self.labelTime = QLabel(self)
         self.labelTime.setAlignment(Qt.AlignCenter)
-        self.labelTime.setFont(QFont("Microsoft YaHei",12,QFont.Bold))
+        self.labelTime.setFont(QFont("Microsoft YaHei", 12, QFont.Bold))
 
-        self.labelTime_1=QLabel(self)
+        self.labelTime_1 = QLabel(self)
         self.labelTime_1.setAlignment(Qt.AlignCenter)
-        self.labelTime_1.setFont(QFont("Microsoft YaHei",12,QFont.Bold))
+        self.labelTime_1.setFont(QFont("Microsoft YaHei", 12, QFont.Bold))
 
         # 消息提示框
         # self.editHint = QLineEdit(self)
@@ -363,6 +371,7 @@ class Window(QWidget):
         ##左起，第三列布局，垂直布局。
         VBlayout_2 = QVBoxLayout()
         VBlayout_2.addWidget(self.btnSetRele)
+        VBlayout_2.addWidget(self.btnDeleteRele)
         VBlayout_2.addWidget(self.btnReset)
         VBlayout_2.addWidget(self.btnReset_1)
         # VBlayout_2.addWidget(self.editHint)
@@ -403,7 +412,7 @@ class Window(QWidget):
             year_str = self.baidu_api.picture2text('image/year.jpg')
             year_int = findall(r'\d+', year_str)
 
-            #label上显示年份
+            # label上显示年份
             self.labelTime.setText(year_str)
 
             if '前' in year_str:
@@ -879,6 +888,52 @@ class Window(QWidget):
         mysqlConn.contour_insert(contour_year, contour_name, contour_points, contour_area, contour_perimeter,
                                  contour_centre)
 
+    def delete_rele_confirm(self):
+        # 第一个轮廓时间、名字
+        contour_year = int(self.editYearInfo.text())
+        contour_name = self.editcontourName.text()
+
+        # 第二个轮廓时间、名字
+        contour_year_1 = int(self.editYearInfo_1.text())
+        contour_name_1 = self.editcontourName_1.text()
+
+        # 第二个轮廓时间、名字
+        # contour_year = 1
+        # contour_name = "汉"
+        # contour_year_1 = 3
+        # contour_name_1 = "汉"
+
+        if contour_year < contour_year_1:
+            print("正常顺序")
+        elif contour_year > contour_year_1:
+            print("右侧图片时间靠前")
+            temp_year = contour_year_1
+            contour_year_1 = contour_year
+            contour_year = temp_year
+
+            temp_contour = contour_name_1
+            contour_name_1 = contour_name
+            contour_name = temp_contour
+        else:
+            print("两张图片属于同一年份，请重新选择图片")
+
+        msgBox = QMessageBox(QMessageBox.Information, "删除关联提示框",
+                             "被删除的关联信息为:" + "\n" + "时间为" + str(contour_year) + "年的" + contour_name + "\n" + "->" + "\n" +
+                             "时间为" + str(contour_year_1) + "年的" + contour_name_1
+                             )
+        qyes = msgBox.addButton(self.tr("确定"), QMessageBox.YesRole)
+        qno = msgBox.addButton(self.tr("取消"), QMessageBox.NoRole)
+        msgBox.exec_()
+        if msgBox.clickedButton() == qyes:
+            # 需要进行的操作
+            print("yes")
+            self.delete_rele()
+        elif msgBox.clickedButton() == qno:
+            print("no")
+            # pass  # 需要进行的操作
+
+        # self.box.exec_()
+
     # 存储轮廓关联
     def save_rele(self):
 
@@ -893,15 +948,11 @@ class Window(QWidget):
 
         # 第一个轮廓时间、名字
         contour_year = int(self.editYearInfo.text())
-        print(contour_year, type(contour_year))
         contour_name = self.editcontourName.text()
-        print(contour_name, type(contour_name))
 
         # 第二个轮廓时间、名字
         contour_year_1 = int(self.editYearInfo_1.text())
-        print(contour_year_1, type(contour_year_1))
         contour_name_1 = self.editcontourName_1.text()
-        print(contour_name_1, type(contour_name_1))
 
         # 判断左右两张图片时间先后
         if contour_year < contour_year_1:
@@ -918,29 +969,33 @@ class Window(QWidget):
         else:
             print("两张图片属于同一年份，请重新选择图片")
 
+        # 写入数据库前，先查询是否有错误信息。
+        # 后序错误的情况：如：用A作为主键去查询后序，查到A的后序为B，表示已有A->B,但实际情况是A->C，应该将B为主键同时A为前序的记录删除。
+        # 前序错误的情况：如：用B作为主键去查询前序，查到B的前序为A，表示已有A->B,但实际情况是C->B，应该将A为主键同时B为后序的记录删除。
+
         # 查询左侧轮廓在数据库中是否存在，返回ret
         mysqlConn1 = MySqlConn()
         ret = mysqlConn1.select_contour(contour_year, contour_name)
-        # 如果ret非空，则说明左侧轮廓已经有了前序轮廓。
         if ret:
-            # 当ret[2] ret[3]都不为空时，all函数返回true
-            if all([ret[2], ret[3]]):
-                pre_contour_year = ret[2]
-                pre_contour = ret[3]
-                # 此时要存入数据库的后序轮廓就是右边图片中的轮廓。
-                next_contour_year = contour_year_1
-                next_contour = contour_name_1
-                print(pre_contour_year, pre_contour, next_contour_year, next_contour)
-
-                mysqlConn2 = MySqlConn()
-                mysqlConn2.insert_rele(contour_year, contour_name, pre_contour_year, pre_contour, next_contour_year,
-                                       next_contour)
-            else:
-                print("左侧轮廓在数据库中已有数据，但ret[2]或ret[3] 为空,说明左侧轮廓多次作为前序轮廓写入数据库")
-                print("比如；左侧轮廓A关联到右侧轮廓B，但A真正对应的是C，将右侧复位后，就出现以上情况（A的ret[2]=0，ret[3]为空），"
-                      "此时应该更新A的后序")
-                mysqlConn3 = MySqlConn()
-                mysqlConn3.insert_rele(contour_year, contour_name, ret[2], ret[3], contour_year_1, contour_name_1)
+            mysqlConn3 = MySqlConn()
+            mysqlConn3.insert_rele(contour_year, contour_name, ret[2], ret[3], contour_year_1, contour_name_1)
+            # # 当ret[2] ret[3]都不为空时，all函数返回true
+            # if all([ret[2], ret[3]]):
+            #     pre_contour_year = ret[2]
+            #     pre_contour = ret[3]
+            #     # 此时要存入数据库的后序轮廓就是右边图片中的轮廓。
+            #     next_contour_year = contour_year_1
+            #     next_contour = contour_name_1
+            #
+            #     mysqlConn2 = MySqlConn()
+            #     mysqlConn2.insert_rele(contour_year, contour_name, pre_contour_year, pre_contour, next_contour_year,
+            #                            next_contour)
+            # else:
+            #     print("左侧轮廓在数据库中已有数据，但ret[2]或ret[3] 为空,说明左侧轮廓多次作为前序轮廓写入数据库")
+            #     print("比如；左侧轮廓A关联到右侧轮廓B，但A真正对应的是C，将右侧复位后，就出现以上情况（A的ret[2]=0，ret[3]为空），"
+            #           "此时应该更新A的后序")
+            #     mysqlConn3 = MySqlConn()
+            #     mysqlConn3.insert_rele(contour_year, contour_name, ret[2], ret[3], contour_year_1, contour_name_1)
         else:
             # 数据库中没有左侧轮廓的关联信息，则直接插入，前序轮廓赋值为空。时间赋值为0.
             mysqlConn4 = MySqlConn()
@@ -952,26 +1007,59 @@ class Window(QWidget):
         ret_1 = mysqlConn5.select_contour(contour_year_1, contour_name_1)
         # 如果ret_1非空，则说明右侧轮廓已经有了后序轮廓。
         if ret_1:
-            if all([ret_1[4], ret_1[5]]):
-                # 此时要存入数据库的前序轮廓就是左边图片中的轮廓。
-                pre_contour_year = contour_year
-                pre_contour = contour_name
-                next_contour_year = ret_1[4]
-                next_contour = ret_1[5]
-                mysqlConn6 = MySqlConn()
-                mysqlConn6.insert_rele(contour_year, contour_name, pre_contour_year, pre_contour, next_contour_year,
-                                       next_contour)
-            else:
-                print("右侧轮廓在数据库中已有数据，但ret[4]或ret[5] 为空,说明右边轮廓多次作为后序轮廓，写入数据库")
-                print("比如；右侧轮廓B已经被左侧轮廓A关联，但B真正的前序是左侧的C，将左侧复位后，就出现以上情况（B的ret[4]=0，ret[5]为空），"
-                      "此时应该更新B的前序")
-                mysqlConn7 = MySqlConn()
-                mysqlConn7.insert_rele(contour_year_1, contour_name_1, contour_year, contour_name, ret_1[4], ret_1[5])
+            mysqlConn7 = MySqlConn()
+            mysqlConn7.insert_rele(contour_year_1, contour_name_1, contour_year, contour_name, ret_1[4], ret_1[5])
+            # if all([ret_1[4], ret_1[5]]):
+            #     # 此时要存入数据库的前序轮廓就是左边图片中的轮廓。
+            #     pre_contour_year = contour_year
+            #     pre_contour = contour_name
+            #     next_contour_year = ret_1[4]
+            #     next_contour = ret_1[5]
+            #     mysqlConn6 = MySqlConn()
+            #     mysqlConn6.insert_rele(contour_year, contour_name, pre_contour_year, pre_contour, next_contour_year,
+            #                            next_contour)
+            # else:
+            #     print("右侧轮廓在数据库中已有数据，但ret[4]或ret[5] 为空,说明右边轮廓多次作为后序轮廓，写入数据库")
+            #     print("比如；右侧轮廓B已经被左侧轮廓A关联，但B真正的前序是左侧的C，将左侧复位后，就出现以上情况（B的ret[4]=0，ret[5]为空），"
+            #           "此时应该更新B的前序")
+            #     mysqlConn7 = MySqlConn()
+            #     mysqlConn7.insert_rele(contour_year_1, contour_name_1, contour_year, contour_name, ret_1[4], ret_1[5])
 
         else:
             mysqlConn8 = MySqlConn()
             mysqlConn8.insert_rele(map_year=contour_year_1, contour_name=contour_name_1, pre_contour_year=contour_year,
                                    pre_contour=contour_name, next_contour_year=0, next_contour=None)
+
+    # 删除轮廓关联
+    def delete_rele(self):
+        # 第一个轮廓时间、名字
+        contour_year = int(self.editYearInfo.text())
+        contour_name = self.editcontourName.text()
+
+        # 第二个轮廓时间、名字
+        contour_year_1 = int(self.editYearInfo_1.text())
+        contour_name_1 = self.editcontourName_1.text()
+
+        # 判断左右两张图片时间先后
+        if contour_year < contour_year_1:
+            print("正常顺序")
+        elif contour_year > contour_year_1:
+            print("右侧图片时间靠前")
+            temp_year = contour_year_1
+            contour_year_1 = contour_year
+            contour_year = temp_year
+
+            temp_contour = contour_name_1
+            contour_name_1 = contour_name
+            contour_name = temp_contour
+        else:
+            print("两张图片属于同一年份，请重新选择图片")
+
+        mysqlConn = MySqlConn()
+        mysqlConn.delete_rele_bynext(contour_year, contour_name,contour_year_1,contour_name_1)
+        mysqlConn1 = MySqlConn()
+        mysqlConn1.delete_rele_bypre(contour_year_1, contour_name_1,contour_year,contour_name)
+
 
     # 图片复位
     def reset(self):
