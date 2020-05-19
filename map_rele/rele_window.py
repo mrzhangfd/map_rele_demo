@@ -5,13 +5,13 @@
 # @Software: PyCharm
 from pickle import dumps
 
-from PyQt5.uic.properties import QtWidgets
+from PyQt5.uic.properties import QtWidgets, QtCore
 from numpy import array, fromfile, uint8, zeros, square, math, int32, ones
 import cv2 as cv
 from re import findall
 from PyQt5.QtWidgets import QPushButton, QLineEdit, QHBoxLayout, QVBoxLayout, QFileDialog, QWidget, QGraphicsView, \
-    QApplication, QLabel, QMessageBox
-from PyQt5.QtCore import Qt
+    QApplication, QLabel, QMessageBox, QTableWidget, QHeaderView, QTableWidgetItem
+from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QIcon, QImage, QPixmap, QFont
 from baidu_ocr import BaiDuAPI
 from photo_viewer import PhotoViewer
@@ -25,7 +25,9 @@ class Window(QWidget):
         super(Window, self).__init__()
         self.init_WINDOW()
 
+
     def init_WINDOW(self):
+
         # 存储加载的图片和抽取的轮廓
         self.image = array([])
         self.cnt = array([])
@@ -243,26 +245,75 @@ class Window(QWidget):
         self.btnSiteSave_1.setText("存储地点信息")
         self.btnSiteSave_1.clicked.connect(self.save_site_1)
 
-        # 第三列按钮
-        #建立关联按钮
+        # 第三列
+        # 水平布局
+
+        # 显示关联按钮
+        self.btnViewRele = QPushButton(self)
+        self.btnViewRele.setText("显 示 关 联")
+        self.btnViewRele.resize(100, 20)
+        self.btnViewRele.clicked.connect(self.get_all_rele)
+
+        # 建立关联按钮
         self.btnSetRele = QPushButton(self)
-        self.btnSetRele.setText("建立关联")
+        self.btnSetRele.setText("建 立 关 联")
+        self.btnSetRele.resize(100, 20)
         self.btnSetRele.clicked.connect(self.save_rele)
 
         # 删除关联按钮
         self.btnDeleteRele = QPushButton(self)
-        self.btnDeleteRele.setText("删除关联")
+        self.btnDeleteRele.setText("删 除 关 联")
         self.btnDeleteRele.clicked.connect(self.delete_rele_confirm)
 
         # 左图复位按钮
         self.btnReset = QPushButton(self)
-        self.btnReset.setText("左图复位")
+        self.btnReset.setText("左 图 复 位")
         self.btnReset.clicked.connect(self.reset)
 
         # 右图复位按钮
         self.btnReset_1 = QPushButton(self)
-        self.btnReset_1.setText("右图复位")
+        self.btnReset_1.setText("右 图 复 位")
         self.btnReset_1.clicked.connect(self.reset_1)
+
+        # 用于显示关联信息的table
+        self.testwidget=QWidget()
+        self.tableWidgetViewRele = QTableWidget(self.testwidget)
+        self.tableWidgetViewRele.setGeometry(QRect(0, 0, 781, 391))
+        # 初始化一行 七列
+        self.tableWidgetViewRele.setRowCount(1)
+        self.tableWidgetViewRele.setColumnCount(7)
+
+        # 设置表头宽度位根据内容调整
+        self.tableWidgetViewRele.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.tableWidgetViewRele.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.tableWidgetViewRele.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        self.tableWidgetViewRele.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        self.tableWidgetViewRele.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeToContents)
+        self.tableWidgetViewRele.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeToContents)
+        self.tableWidgetViewRele.horizontalHeader().setSectionResizeMode(6, QHeaderView.ResizeToContents)
+
+        # 设置表头文字
+        item = QTableWidgetItem()
+        item.setText("时间")
+        self.tableWidgetViewRele.setHorizontalHeaderItem(0, item)
+        item = QTableWidgetItem()
+        item.setText("区划名")
+        self.tableWidgetViewRele.setHorizontalHeaderItem(1, item)
+        item = QTableWidgetItem()
+        item.setText("前序时间")
+        self.tableWidgetViewRele.setHorizontalHeaderItem(2, item)
+        item = QTableWidgetItem()
+        item.setText("前序区划")
+        self.tableWidgetViewRele.setHorizontalHeaderItem(3, item)
+        item = QTableWidgetItem()
+        item.setText("后序时间")
+        self.tableWidgetViewRele.setHorizontalHeaderItem(4, item)
+        item = QTableWidgetItem()
+        item.setText("后序区划")
+        self.tableWidgetViewRele.setHorizontalHeaderItem(5, item)
+        item = QTableWidgetItem()
+        item.setText("操作")
+        self.tableWidgetViewRele.setHorizontalHeaderItem(6, item)
 
         # 显示时间信息的label
         self.labelTime = QLabel(self)
@@ -273,16 +324,11 @@ class Window(QWidget):
         self.labelTime_1.setAlignment(Qt.AlignCenter)
         self.labelTime_1.setFont(QFont("Microsoft YaHei", 12, QFont.Bold))
 
-        # 消息提示框
-        # self.editHint = QLineEdit(self)
-        # self.editHint = QLineEdit(self)
-        # self.editHint.setPlaceholderText("消息提示")
-        # self.editHint.setReadOnly(True)
-
         self.setStyleSheet(
             "QPushButton{background-color: rgb(39, 118, 148)}"
             "QPushButton{color:white}" "QPushButton:hover{color:yellow}" "QPushButton:pressed{color:red;}"
-            "QPushButton{border-radius:5px}" "QPushButton{border:2px groove gray}" "QPushButton{border-style: outset}" "QPushButton{padding:2px 4px}"
+            "QPushButton{border-radius:5px}" "QPushButton{border:2px groove gray}" "QPushButton{border-style: outset}"
+            "QPushButton{padding:2px 4px}"
             "QLineEdit {border:2px groove gray}" "QLineEdit {border-radius:5px}" "QLineEdit{padding: 2px 4px}"
         )
 
@@ -369,18 +415,27 @@ class Window(QWidget):
         VBlayout_1.addLayout(HBlayoutThird_1)
 
         ##左起，第三列布局，垂直布局。
+
         VBlayout_2 = QVBoxLayout()
-        VBlayout_2.addWidget(self.btnSetRele)
-        VBlayout_2.addWidget(self.btnDeleteRele)
-        VBlayout_2.addWidget(self.btnReset)
-        VBlayout_2.addWidget(self.btnReset_1)
-        # VBlayout_2.addWidget(self.editHint)
+
+        # 先水平布局
+        HBlayout_2 = QHBoxLayout()
+
+        HBlayout_2.addWidget(self.btnViewRele)
+        HBlayout_2.addWidget(self.btnSetRele)
+        HBlayout_2.addWidget(self.btnDeleteRele)
+        HBlayout_2.addWidget(self.btnReset)
+        HBlayout_2.addWidget(self.btnReset_1)
+
+        VBlayout_2.addLayout(HBlayout_2)
+        VBlayout_2.addWidget(self.tableWidgetViewRele)
+        VBlayout_2.setGeometry(QRect(0, 0, 500, 100))
 
         HBlayoutAll.addLayout(VBlayout)
         HBlayoutAll.addLayout(VBlayout_1)
         HBlayoutAll.addLayout(VBlayout_2)
 
-        self.setGeometry(500, 300, 800, 600)
+        self.setGeometry(200, 300, 800, 600)
         self.setWindowTitle('历史时空')
         self.setWindowIcon(QIcon('windowIcon.png'))
         self.show()
@@ -888,6 +943,7 @@ class Window(QWidget):
         mysqlConn.contour_insert(contour_year, contour_name, contour_points, contour_area, contour_perimeter,
                                  contour_centre)
 
+    # 删除关联 确认消息
     def delete_rele_confirm(self):
         # 第一个轮廓时间、名字
         contour_year = int(self.editYearInfo.text())
@@ -918,7 +974,8 @@ class Window(QWidget):
             print("两张图片属于同一年份，请重新选择图片")
 
         msgBox = QMessageBox(QMessageBox.Information, "删除关联提示框",
-                             "被删除的关联信息为:" + "\n" + "时间为" + str(contour_year) + "年的" + contour_name + "\n" + "->" + "\n" +
+                             "被删除的关联信息为:" + "\n" + "时间为" + str(
+                                 contour_year) + "年的" + contour_name + "\n" + "->" + "\n" +
                              "时间为" + str(contour_year_1) + "年的" + contour_name_1
                              )
         qyes = msgBox.addButton(self.tr("确定"), QMessageBox.YesRole)
@@ -1056,10 +1113,67 @@ class Window(QWidget):
             print("两张图片属于同一年份，请重新选择图片")
 
         mysqlConn = MySqlConn()
-        mysqlConn.delete_rele_bynext(contour_year, contour_name,contour_year_1,contour_name_1)
+        mysqlConn.delete_rele_bynext(contour_year, contour_name, contour_year_1, contour_name_1)
         mysqlConn1 = MySqlConn()
-        mysqlConn1.delete_rele_bypre(contour_year_1, contour_name_1,contour_year,contour_name)
+        mysqlConn1.delete_rele_bypre(contour_year_1, contour_name_1, contour_year, contour_name)
 
+    def get_all_rele(self):
+        # contour_year=50
+        # contour_name="汉"
+
+        # 第一个轮廓时间、名字
+        contour_year = int(self.editYearInfo.text())
+        #contour_name = self.editcontourName.text()
+
+        # 第二个轮廓时间、名字
+        contour_year_1 = int(self.editYearInfo_1.text())
+        #contour_name_1 = self.editcontourName_1.text()
+
+        # 第二个轮廓时间、名字
+        # contour_year = 1
+        # contour_name = "汉"
+        # contour_year_1 = 3
+        # contour_name_1 = "汉"
+
+        if contour_year < contour_year_1:
+            print("正常顺序")
+        elif contour_year > contour_year_1:
+            print("右侧图片时间靠前")
+            temp_year = contour_year_1
+            contour_year_1 = contour_year
+            contour_year = temp_year
+
+            # temp_contour = contour_name_1
+            # contour_name_1 = contour_name
+            # contour_name = temp_contour
+        else:
+            print("两张图片属于同一年份，请重新选择图片")
+
+        # contour_year = 17
+        # contour_name = "新"
+        # contour_year_1 = 19
+        # contour_name_1 = "新"
+
+        mysqlConn = MySqlConn()
+        ret = mysqlConn.select_all(contour_year, contour_year_1)
+        #print(ret)
+        print(ret[0])
+        self.tableWidgetViewRele.setRowCount(len(ret))
+        # 数据条数
+        i = 0
+        for r in ret:
+            for j in range(0, 7):
+                if j < 6:
+                    self.item = QTableWidgetItem(str(r[j]))
+                    # print("this is show item:", r[j])
+                    self.item.setTextAlignment(Qt.AlignCenter)
+                    self.tableWidgetViewRele.setItem(i, j, self.item)
+                if j == 6:
+                    self.btnDel = QPushButton()
+                    self.btnDel.setText("删除")
+                    self.tableWidgetViewRele.setCellWidget(i, j, self.btnDel)
+                    self.btnDel.clicked.connect(self.delete_rele_confirm)
+            i = i + 1
 
     # 图片复位
     def reset(self):
