@@ -175,3 +175,21 @@ class MySqlConn(object):
         finally:
             self._cur.close()  # 关闭游标
             self._conn.close()  # 释放数据库资源
+
+
+    def delete_rele_byKey(self,map_year,contour_name):
+        deleteString = 'delete from map_rele where map_year=%s and contour_name=%s'
+
+        args = (map_year, contour_name)
+
+        try:
+            print(deleteString)
+            self._cur.execute(deleteString, args)
+            self._conn.commit()
+        except Error as e:
+            self._conn.rollback()
+            print("删除失败")
+        # 无论如何，连接记得关闭游标和数据库链接
+        finally:
+            self._cur.close()  # 关闭游标
+            self._conn.close()  # 释放数据库资源
