@@ -50,11 +50,45 @@ class MySqlConn(object):
     # 轮廓入库
     def contour_insert(self, contour_year, contour_name, contour_points, contour_area, contour_perimeter,
                        contour_centre):
-        print(contour_year, contour_name, contour_points, contour_area, contour_perimeter, contour_centre)
+        #print(contour_year, contour_name, contour_points, contour_area, contour_perimeter, contour_centre)
         insertString = 'insert into contour_info(contour_year,contour_name,contour_points,contour_area,contour_perimeter,contour_centre) values (%s,%s,%s,%s,%s,%s)' \
                        'ON DUPLICATE KEY UPDATE contour_points = values(contour_points),contour_area = values(contour_area),contour_perimeter = values(contour_perimeter),' \
                        'contour_centre = values(contour_centre)'
         args = (contour_year, contour_name, contour_points, contour_area, contour_perimeter, contour_centre)
+        try:
+            self._cur.execute(insertString, args)
+            self._conn.commit()
+        except Error as e:
+            self._conn.rollback()
+            print("插入失败")
+        finally:
+            # 无论如何，连接记得关闭游标和数据库链接
+            self._cur.close()  # 关闭游标
+            self._conn.close()  # 释放数据库资源
+
+
+    def contour_insert_2_contour_point(self,contour_year, contour_name, contour_point_set):
+        # print(contour_year, contour_name, contour_points, contour_area, contour_perimeter, contour_centre)
+        insertString = 'insert into contour_point(contour_year,contour_name,contour_point_set) values (%s,%s,%s)' \
+                       'ON DUPLICATE KEY UPDATE contour_point_set = values(contour_point_set)'
+        args = (contour_year, contour_name, contour_point_set)
+        try:
+            self._cur.execute(insertString, args)
+            self._conn.commit()
+        except Error as e:
+            self._conn.rollback()
+            print("插入失败")
+        finally:
+            # 无论如何，连接记得关闭游标和数据库链接
+            self._cur.close()  # 关闭游标
+            self._conn.close()  # 释放数据库资源
+
+    # 插入轮廓上的点的坐标
+    def insert_contour_point(self,contour_year,contour_name,contour_point_x,contour_point_y):
+        # print(contour_year, contour_name, contour_points, contour_area, contour_perimeter, contour_centre)
+        insertString = 'insert into contour_point(contour_year,contour_name,contour_point_x,contour_point_y) values (%s,%s,%s,%s)'
+
+        args = (contour_year, contour_name, contour_point_x,contour_point_y)
         try:
             self._cur.execute(insertString, args)
             self._conn.commit()
@@ -83,12 +117,31 @@ class MySqlConn(object):
             self._cur.close()  # 关闭游标
             self._conn.close()  # 释放数据库资源
 
-    # 根据map_year和contour_name 查询轮廓
+    # 根据map_year和contour_name 在轮廓关联表中查询轮廓信息
     def select_contour(self, map_year, contour_name):
         print("this is select_contour")
         select_string = 'select * from map_rele where map_year=%s and contour_name=%s'
 
         args = (map_year, contour_name)
+        try:
+            self._cur.execute(select_string, args)
+            ret = self._cur.fetchall()
+            self._conn.commit()
+            return ret
+        # 无论如何，连接记得关闭游标和数据库链接
+        except Error as e:
+            self._conn.rollback()
+            print("插入失败")
+        finally:
+            self._cur.close()  # 关闭游标
+            self._conn.close()  # 释放数据库资源
+
+    # 根据map_year和contour_name 在轮廓信息表中共查询轮廓
+    def select_contour_info(self, contour_year, contour_name):
+        print("this is select_contour")
+        select_string = 'select * from contour_info where contour_year=%s and contour_name=%s'
+
+        args = (contour_year, contour_name)
         try:
             self._cur.execute(select_string, args)
             ret = self._cur.fetchall()
@@ -214,6 +267,41 @@ class MySqlConn(object):
         except Error as e:
             self._conn.rollback()
             print("插入失败")
+        finally:
+            self._cur.close()  # 关闭游标
+            self._conn.close()  # 释放数据库资源
+
+
+    # 查询所有轮廓信息
+    def select_all_contour_info(self):
+
+        select_string = 'select * from contour_info '
+        try:
+            self._cur.execute(select_string)
+            ret = self._cur.fetchall()
+            self._conn.commit()
+            return ret
+        # 无论如何，连接记得关闭游标和数据库链接
+        except Error as e:
+            self._conn.rollback()
+            print("插入失败")
+        finally:
+            self._cur.close()  # 关闭游标
+            self._conn.close()  # 释放数据库资源
+
+    def delete_contour_point(self,contour_year,contour_name):
+        print("this is delete_contour_point")
+        deleteString = 'delete from contour_point where contour_year=%s  ' \
+                       'and contour_name=%s '
+
+        args = (contour_year, contour_name)
+        try:
+            self._cur.execute(deleteString, args)
+            self._conn.commit()
+        except Error as e:
+            self._conn.rollback()
+            print("删除失败")
+        # 无论如何，连接记得关闭游标和数据库链接
         finally:
             self._cur.close()  # 关闭游标
             self._conn.close()  # 释放数据库资源

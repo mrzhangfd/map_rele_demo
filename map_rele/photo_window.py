@@ -314,6 +314,9 @@ class Window(QWidget):
             # OpenCV3 的findContours有三个返回值，OpenCV 4的有四个返回值
             # 应该安装opencv-python 3.*版本。
             myImage, cnts, hierarchy = cv.findContours(closed, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+            #print(cnts.size)
+            print(type(cnts))
+            print(len(cnts))
             num = 0
             con_exit = False
             for cnt in cnts:
@@ -328,7 +331,9 @@ class Window(QWidget):
             if con_exit:
                 # 点在轮廓内
                 self.cnt = cnts[num]  # 确定轮廓
-
+                # print(self.cnt)
+                # print(self.cnt.shape)
+                #print(type(self.cnt))
                 back = ones(self.image.shape, uint8) * 255
                 img_contour = cv.drawContours(self.image.copy(), cnts, num, (255, 255, 255), 3)
                 # img_contour1 = cv.drawContours(back, cnts, num, (0, 0, 255), 3)
@@ -433,9 +438,12 @@ class Window(QWidget):
         contour_year = int(self.editYearInfo.text())
         contour_name = self.editcontourName.text()
         contour_points_arr = self.cnt
-        print(contour_points_arr)
-        contour_points = dumps(contour_points_arr)  # narray 转换为二进制
-        # print(contour_points)
+
+        print(contour_points_arr.shape)
+
+        # narray 转换为二进制
+        contour_points = dumps(contour_points_arr)
+        print(len(contour_points))
         contour_area = float(self.editContourArea.text())
         contour_perimeter = float(self.editContourPerimeter.text())
         contour_centre = self.editContourCentre.text()
@@ -542,41 +550,7 @@ class Window(QWidget):
         site_centre = str(self.site_centre)
         mysqlConn = MySqlConn()
         mysqlConn.site_insert(site_year, site_name, site_contour, site_slpoe, site_lenth, site_centre)
-    # hsv列表
-    # def get_corlor_list(self):
-    #
-    #     dict = defaultdict(list)
-    #
-    #     # 红色
-    #     lower_red = array([0, 90, 120])
-    #     upper_red = array([9, 255, 255])
-    #     color_list = []
-    #     color_list.append(lower_red)
-    #     color_list.append(upper_red)
-    #     dict['red'] = color_list
-    #     # 黄色
-    #     lower_yellow = array([25, 135, 80])
-    #     upper_yellow = array([38, 255, 255])
-    #     color_list = []
-    #     color_list.append(lower_yellow)
-    #     color_list.append(upper_yellow)
-    #     dict['yellow'] = color_list
-    #     # 绿色
-    #     lower_green = array([47, 160, 70])
-    #     upper_green = array([61, 255, 255])
-    #     color_list = []
-    #     color_list.append(lower_green)
-    #     color_list.append(upper_green)
-    #     dict['green'] = color_list
-    #     # 紫色
-    #     lower_purple = array([128, 120, 137])
-    #     upper_purple = array([149, 255, 255])
-    #     color_list = []
-    #     color_list.append(lower_purple)
-    #     color_list.append(upper_purple)
-    #     dict['purple'] = color_list
-    #
-    #     return dict
+
 
 
 if __name__ == '__main__':

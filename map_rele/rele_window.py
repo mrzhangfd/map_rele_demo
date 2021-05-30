@@ -10,7 +10,7 @@ from numpy import array, fromfile, uint8, zeros, square, math, int32, ones
 import cv2 as cv
 from re import findall
 from PyQt5.QtWidgets import QPushButton, QLineEdit, QHBoxLayout, QVBoxLayout, QFileDialog, QWidget, QGraphicsView, \
-    QApplication, QLabel, QMessageBox, QTableWidget, QHeaderView, QTableWidgetItem
+    QApplication, QLabel, QMessageBox, QTableWidget, QHeaderView, QTableWidgetItem,QTextEdit
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QIcon, QImage, QPixmap, QFont
 from baidu_ocr import BaiDuAPI
@@ -323,6 +323,19 @@ class Window(QWidget):
         self.labelTime_1.setAlignment(Qt.AlignCenter)
         self.labelTime_1.setFont(QFont("Microsoft YaHei", 12, QFont.Bold))
 
+        # 前因后果
+        #清除前因、后果的按钮
+        self.btnResetPreReason=QPushButton(self)
+        #self.btnResetNextReason=QPushButton(self)
+        self.btnResetPreReason.setText("复 位")
+
+        self.btnSavePreReason=QPushButton(self)
+        self.btnSavePreReason.setText("存储关联原因分析")
+        #self.btnSaveNextReason=QPushButton(self)
+
+        self.preReason=QTextEdit(self)
+        #self.nextReason=QTextEdit(self)
+
         self.setStyleSheet(
             "QPushButton{background-color: rgb(39, 118, 148)}"
             "QPushButton{color:white}" "QPushButton:hover{color:yellow}" "QPushButton:pressed{color:red;}"
@@ -417,6 +430,7 @@ class Window(QWidget):
 
         VBlayout_2 = QVBoxLayout()
 
+
         # 先水平布局
         HBlayout_2 = QHBoxLayout()
 
@@ -428,14 +442,24 @@ class Window(QWidget):
 
         VBlayout_2.addLayout(HBlayout_2)
         VBlayout_2.addWidget(self.tableWidgetViewRele)
-        VBlayout_2.setGeometry(QRect(0, 0, 500, 100))
+
+
+        # 水平布局存放两个 按钮
+        HBlayout_3=QHBoxLayout()
+        HBlayout_3.addWidget(self.btnSavePreReason)
+        HBlayout_3.addWidget(self.btnResetPreReason)
+
+        VBlayout_2.addLayout(HBlayout_3)
+        VBlayout_2.addWidget(self.preReason)
+
+        VBlayout_2.setGeometry(QRect(0, 0, 1000, 100))
 
         HBlayoutAll.addLayout(VBlayout)
         HBlayoutAll.addLayout(VBlayout_1)
         HBlayoutAll.addLayout(VBlayout_2)
 
-        self.setGeometry(200, 300, 800, 600)
-        self.setWindowTitle('历史时空')
+        self.setGeometry(200, 300, 1200, 600)
+        self.setWindowTitle('历史时空关联')
         self.setWindowIcon(QIcon('windowIcon.png'))
         self.show()
 
@@ -640,7 +664,8 @@ class Window(QWidget):
                 num = num + 1
             if con_exit:
                 self.cnt = cnts[num]  # 确定轮廓
-
+                print(self.cnt)
+                print(type(self.cnt))
                 back = ones(self.image.shape, uint8) * 255
                 img_contour = cv.drawContours(self.image.copy(), cnts, num, (255, 255, 255), 3)
                 # img_contour1 = cv.drawContours(back, cnts, num, (0, 0, 255), 3)
